@@ -1,0 +1,6 @@
+{
+	"port": 8000,
+	"sandboxGid": 2000,
+	"sandboxCpuTime": 3,
+	"sandboxMemSize": 100000
+}
