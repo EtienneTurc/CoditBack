@@ -1,6 +1,11 @@
 {
 	"port": 8000,
+	"database": "mongodb://localhost/submission-platform",
 	"sandboxGid": 2000,
-	"sandboxCpuTime": 3,
-	"sandboxMemSize": 100000
+	"sandboxCPUTime": 3,
+	"sandboxMemSize": 250000,
+	"pythonPath": "/usr/bin/python3",
+	"allowedModules": [
+		"math"
+	]
 }
