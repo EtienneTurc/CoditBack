@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 
 const mongoose = require('mongoose')
+const cors = require('cors')
 
 const config = require("./config/config.json")
 
@@ -14,6 +15,8 @@ mongoose.connect(config.database, {
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+app.use(cors({ credentials: true, origin: true }))
 
 app.use("/", require("./app/routes.js"))
 

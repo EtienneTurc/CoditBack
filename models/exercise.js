@@ -30,7 +30,7 @@ const Exercise = mongoose.model("Exercise", ExerciseSchema)
 // ========================================
 
 Exercise.getAll = () => {
-	return Exercise.find()
+	return Exercise.find().lean()
 }
 
 Exercise.getByUploader = uploaderMail => {

@@ -24,6 +24,8 @@ router.get("/exec", (req, res) => {
 })
 
 router.get("/exercise", ctrl.getExercise)
+router.get("/exercises", ctrl.getExercises)
+router.post("/exercise", ctrl.postExercise)
 router.post("/solution", ctrl.postSolution)
 
 module.exports = router
