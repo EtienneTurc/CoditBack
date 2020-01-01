@@ -7,9 +7,8 @@ exports.check = (el, status, message) => {
 	if (!el) throw { status, message }
 }
 
-exports.executeFile = filePath => {
-	filePath = "main.py"
-	let cmd = `/home/etienne/safeexec/safeexec --gid ${config.sandboxGid} --nproc 4 --mem ${config.sandboxMemSize} --exec ${config.pythonPath} pythonSandbox.py ${filePath}`
+exports.executeFile = (exercise, studentFilePath) => {
+	let cmd = `/home/etienne/safeexec/safeexec --gid ${config.sandboxGid} --nproc 4 --mem ${config.sandboxMemSize} --exec ${config.pythonPath} pythonSandbox.py ${exercice.testPath} ${studentFilePath} ${exercise.cpuTime} ${exercise.memorySize}`
 	exec(cmd, (err, stdout, stderr) => {
 		if (err) {
 			// node couldn't execute the command

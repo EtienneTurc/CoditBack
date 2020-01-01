@@ -1,5 +1,6 @@
 {
 	"port": 8000,
+	"documentStore": "/path/to/data",
 	"database": "mongodb://localhost/submission-platform",
 	"sandboxGid": 2000,
 	"sandboxCPUTime": 3,

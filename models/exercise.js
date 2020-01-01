@@ -10,9 +10,33 @@ const ExerciseSchema = new mongoose.Schema({
 		required: true,
 		unique: true,
 	},
-	language: {
+	testPath: {
 		type: String,
 		required: true,
+		unique: true
+	},
+	title: {
+		type: String,
+		required: true
+	},
+	banner: {
+		type: String,
+	},
+	difficulty: {
+		type: Number
+	},
+	language: {
+		type: String,
+		enum: ["Python3"],
+		default: "Python3"
+	},
+	cpuTime: {
+		type: Number,
+		default: 3
+	},
+	memorySize: {
+		type: Number,
+		default: 10000
 	}
 }, {
 	timestamps: true,
@@ -31,6 +55,10 @@ const Exercise = mongoose.model("Exercise", ExerciseSchema)
 
 Exercise.getAll = () => {
 	return Exercise.find().lean()
+}
+
+Exercise.getById = id => {
+	return Exercise.findOne({ _id: id }).lean()
 }
 
 Exercise.getByUploader = uploaderMail => {

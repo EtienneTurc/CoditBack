@@ -1,18 +1,11 @@
-from config.allowedModule import *
-
 import resource
 import bdb
 import json
 import sys
 import traceback
 import types
+import io as cStringIO
 
-is_python3 = (sys.version_info[0] == 3)
-
-if is_python3:
-    import io as cStringIO
-else:
-    import cStringIO
 
 DEBUG = True
 
@@ -36,14 +29,16 @@ for m in config["allowedModules"]:
 
 
 class SandboxExecutor(bdb.Bdb):
-    def __init__(self, finalizer_func):
+    def __init__(self, finalizer_func, cpuTime, memorySize):
         bdb.Bdb.__init__(self)
         self.ORIGINAL_STDOUT = sys.stdout
         self.ORIGINAL_STDERR = sys.stderr
         self.finalizer_func = finalizer_func
+        self.cpuTime = cpuTime
+        self.memorySize = memorySize
         self.executed_script = None
 
-    def _runscript(self, script_str):
+    def _runscript(self, script_str, sutdent_str):
         self.executed_script = script_str
 
         self.user_stdout = cStringIO.StringIO()
@@ -60,15 +55,17 @@ class SandboxExecutor(bdb.Bdb):
             #   x = 2
             #   while True: x = x*x
             resource.setrlimit(resource.RLIMIT_AS,
-                               (config["sandboxMemSize"], config["sandboxMemSize"]))
+                               (self.memorySize, self.memorySize))
             resource.setrlimit(resource.RLIMIT_CPU,
-                               (config["sandboxCPUTime"], config["sandboxCPUTime"]))
+                               (self.cpuTime, self.cpuTime))
+            resource.setrlimit(resource.RLIMIT_NPROC,
+                               (1, 1))
 
             # protect against unauthorized filesystem accesses ...
             resource.setrlimit(resource.RLIMIT_NOFILE,
                                (0, 0))  # cannot open files
 
-            # (redundancy for paranoia ... might sometimes lead to weird behavior)
+            # # (redundancy for paranoia ... might sometimes lead to weird behavior)
             resource.setrlimit(resource.RLIMIT_FSIZE, (0, 0))
 
             # sys.modules contains an in-memory cache of already-loaded
@@ -86,7 +83,9 @@ class SandboxExecutor(bdb.Bdb):
             del sys.modules['sys']
 
             # ... here we go!
-            self.run(script_str)
+            globals_env = {}
+            self.run(student_str, globals_env)
+            self.run(script_str, globals_env)
         # sys.exit ...
         except SystemExit:
             raise bdb.BdbQuit
@@ -102,11 +101,11 @@ class SandboxExecutor(bdb.Bdb):
 
 
 # the MAIN meaty function
-def exec_str(script_str, finalizer):
-    logger = SandboxExecutor(finalizer)
+def exec_str(script_str, student_str, finalizer, cpuTime, memorySize):
+    logger = SandboxExecutor(finalizer, cpuTime, memorySize)
 
     try:
-        logger._runscript(script_str)
+        logger._runscript(script_str, student_str)
     except bdb.BdbQuit:
         pass
     finally:
@@ -120,5 +119,10 @@ def json_finalizer(executor):
 
 
 if __name__ == "__main__":
-    script = open(sys.argv[1]).read()
-    print(exec_str(script, json_finalizer))
+    test_script = open(sys.argv[1]).read()
+    student_str = open(sys.argv[2]).read()
+    cpuTime = int(sys.argv[3])
+    memorySize = int(sys.argv[4])
+
+    print(exec_str(test_script, student_str, json_finalizer,
+                   cpuTime, memorySize))

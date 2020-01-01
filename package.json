@@ -11,7 +11,10 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "express-fileupload": "^1.1.6",
     "marked": "^0.8.0",
-    "mongoose": "^5.8.1"
+    "mongoose": "^5.8.1",
+    "move-file": "^1.2.0"
   }
 }

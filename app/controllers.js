@@ -1,5 +1,8 @@
-const { check, executeFile, markdownToHtml } = require("../utils/utils")
+const mongoose = require('mongoose')
+const moveFile = require('move-file');
+const config = require("../config/config.json")
 
+const { check, executeFile, markdownToHtml } = require("../utils/utils")
 const Exercise = require("../models/exercise")
 
 // GET
@@ -27,25 +30,38 @@ exports.getExercises = async (req, res) => {
 	res.send(exercises)
 }
 
+// PUT
+
+exports.updateSubmission = async (req, res) => {
+	check(req.query.id, 400, "No exercise given")
+	let exo = await Exercise.getById(req.query.id)
+	check(exo, 404, "No exercise found")
+
+	check(req.files, 400, "No file given")
+
+	let stdout = executeFile(exo, req.files.submission.tempFilePath)
+	res.send(stdout)
+}
+
 // POST
 
 exports.postExercise = async (req, res) => {
-	// TODO wrap this better
-	check(req.body, 400, "No exercise given")
-	check(req.body.language, 400, "No language specified")
-	check(req.body.markdown, 400, "No subject given")
+	let exercise = JSON.parse(req.body.exercise)
+	check(exercise, 400, "No exercise given")
+	check(exercise.language, 400, "No language specified")
+	check(exercise.markdown, 400, "No subject given")
+	check(req.files, 400, "No file given")
+	check(req.files.testFile, 400, "No file given")
 
-	let exercise = await Exercise.add(req.body)
+	exercise._id = mongoose.Types.ObjectId();
+
+	exercise.testPath = config.documentStore + "/" + exercise._id + "/test.py"
+	// Saving test file
+	await moveFile(req.files.testFile.tempFilePath, exercise.testPath)
+
+	exercise = await Exercise.add(exercise)
 	check(exercise, 404, "Could not create a new exercise")
+
 	exercise.subject = markdownToHtml(exercise.markdown)
-
 	res.send(exercise)
-}
-
-exports.postSolution = async (req, res) => {
-	// TODO Download file
-	check(req.query.file, 400, "No file given")
-	let stdout = executeFile(req.query.file)
-
-	res.send(stdout)
 }
