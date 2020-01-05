@@ -1,10 +1,11 @@
-import resource
-import bdb
-import json
-import sys
-import traceback
-import types
 import io as cStringIO
+import types
+import traceback
+import sys
+import json
+import bdb
+import resource
+import unittest
 
 
 DEBUG = True
@@ -22,7 +23,6 @@ with open('./config/config.json', 'r') as jsonFile:
 # all, so they better work on Python 2 and 3!
 for m in config["allowedModules"]:
     __import__(m)
-
 
 # there's no point in banning builtins since malicious users can
 # circumvent those anyways
@@ -78,12 +78,13 @@ class SandboxExecutor(bdb.Bdb):
             #
             # Of course, this isn't a foolproof solution by any means,
             # and it might lead to unexpected failures later in execution.
+            unittestRunner = unittest.TextTestRunner(sys.stdout, verbosity=2)
             del sys.modules['os']
             del sys.modules['os.path']
             del sys.modules['sys']
 
             # ... here we go!
-            globals_env = {}
+            globals_env = {'unittestRun': unittestRunner.run}
             self.run(student_str, globals_env)
             self.run(script_str, globals_env)
         # sys.exit ...
@@ -113,8 +114,7 @@ def exec_str(script_str, student_str, finalizer, cpuTime, memorySize):
 
 
 def json_finalizer(executor):
-    return json.dumps(dict(code=executor.executed_script,
-                           user_stdout=executor.user_stdout.getvalue(),
+    return json.dumps(dict(user_stdout=executor.user_stdout.getvalue(),
                            user_stderr=executor.user_stderr.getvalue()))
 
 
