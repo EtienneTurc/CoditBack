@@ -1,5 +1,15 @@
 {
-	"port": 8000,
+	"port": 8443,
+	"url": "https://localhost:8443",
+	"frontUrl": "http://localhost:8080",
+	"ssl_key": "config/ssl.key",
+	"ssl_crt": "config/ssl.crt",
+	"sessionSecret": "changeMe",
+	"storeSecret": "changeMe2",
+	"ldap": {
+		"host": "ldap://ladi1.ensta.fr",
+		"baseSearch": "ou=People,dc=ensta,dc=fr"
+	},
 	"documentStore": "/path/to/data",
 	"database": "mongodb://localhost/submission-platform",
 	"sandboxGid": 2000,
@@ -7,6 +17,8 @@
 	"sandboxMemSize": 250000,
 	"pythonPath": "/usr/bin/python3",
 	"allowedModules": [
-		"math"
+		"math",
+		"unittest",
+		"numpy"
 	]
 }

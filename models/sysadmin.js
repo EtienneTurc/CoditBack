@@ -1,18 +1,9 @@
 const mongoose = require('mongoose')
 
-const UserSchema = new mongoose.Schema({
-	firstName: {
-		type: String,
-		required: true,
-	},
-	lastName: {
-		type: String,
-		required: true,
-	},
+const SysadminSchema = new mongoose.Schema({
 	mail: {
 		type: String,
 		required: true,
-		unique: true,
 	}
 }, {
 	timestamps: true,
@@ -23,18 +14,18 @@ const UserSchema = new mongoose.Schema({
 // METHODS
 // ========================================
 
-const User = mongoose.model("User", UserSchema)
+const Sysadmin = mongoose.model("Sysadmin", SysadminSchema)
 
 // ========================================
 // GET
 // ========================================
 
-User.getAll = () => {
-	return User.find()
+Sysadmin.getAll = () => {
+	return Sysadmin.find()
 }
 
-User.getByMail = mail => {
-	return User.findOne({ mail: mail })
+Sysadmin.getByMail = mail => {
+	return Sysadmin.findOne({ mail: mail })
 }
 
 
@@ -42,8 +33,8 @@ User.getByMail = mail => {
 // ADD
 // ========================================
 
-User.add = async user => {
-	let a = await User.create(user)
+Sysadmin.add = async user => {
+	let a = await Sysadmin.create(user)
 	return a
 }
 
@@ -51,8 +42,8 @@ User.add = async user => {
 // UPDATE
 // ========================================
 
-User.update = async (mail, user) => {
-	let a = await User.findOneAndUpdate({ mail: mail }, { $set: user }, { new: true })
+Sysadmin.update = async (mail, user) => {
+	let a = await Sysadmin.findOneAndUpdate({ mail: mail }, { $set: user }, { new: true })
 	// check(a, 404, "Not Found")
 	return a
 }
@@ -61,14 +52,14 @@ User.update = async (mail, user) => {
 // DELETE
 // ========================================
 
-User.deleteByMail = async id => {
-	let a = await User.findOneAndDelete({ mail: mail })
+Sysadmin.deleteByMail = async id => {
+	let a = await Sysadmin.findOneAndDelete({ mail: mail })
 	// check(a, 404, "Not Found")
 	return a
 }
 
-User.deleteAll = () => {
-	return User.deleteMany({})
+Sysadmin.deleteAll = () => {
+	return Sysadmin.deleteMany({})
 }
 
-module.exports = User
+module.exports = Sysadmin
