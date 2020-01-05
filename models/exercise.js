@@ -5,6 +5,11 @@ const ExerciseSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
+	// group: {
+	// 	type: mongoose.Schema.ObjectId,
+	// 	ref: "Group",
+	// 	required: true
+	// },
 	markdown: {
 		type: String,
 		required: true,
@@ -18,6 +23,10 @@ const ExerciseSchema = new mongoose.Schema({
 	title: {
 		type: String,
 		required: true
+	},
+	showTitle: {
+		type: Boolean,
+		default: false
 	},
 	banner: {
 		type: String,
@@ -54,11 +63,11 @@ const Exercise = mongoose.model("Exercise", ExerciseSchema)
 // ========================================
 
 Exercise.getAll = () => {
-	return Exercise.find().lean()
+	return Exercise.find()
 }
 
 Exercise.getById = id => {
-	return Exercise.findOne({ _id: id }).lean()
+	return Exercise.findOne({ _id: id })
 }
 
 Exercise.getByUploader = uploaderMail => {
@@ -81,7 +90,6 @@ Exercise.add = async exercise => {
 
 Exercise.update = async (id, exercise) => {
 	let a = await Exercise.findOneAndUpdate({ _id: id }, { $set: exercise }, { new: true })
-	// check(a, 404, "Not Found")
 	return a
 }
 
@@ -91,7 +99,6 @@ Exercise.update = async (id, exercise) => {
 
 Exercise.deleteById = async id => {
 	let a = await Exercise.findOneAndDelete({ _id: id })
-	// check(a, 404, "Not Found")
 	return a
 }
 

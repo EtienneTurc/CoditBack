@@ -31,7 +31,7 @@ const Solution = mongoose.model("Solution", SolutionSchema)
 // ========================================
 
 Solution.getAll = () => {
-	return Solution.find().lean()
+	return Solution.find()
 }
 
 Solution.getByUploader = uploaderMail => {

@@ -1,13 +1,12 @@
 const mongoose = require('mongoose')
 
 const GroupSchema = new mongoose.Schema({
-	exercises: {
-		type: [mongoose.Schema.ObjectId],
-		ref: "Exercise",
-		required: true,
+	title: {
+		type: String,
+		required: true
 	},
 	startTime: Date,
-	endTime: Date
+	endTime: Date,
 }, {
 	timestamps: true,
 	versionKey: false,
@@ -54,12 +53,6 @@ Group.update = async (id, group) => {
 // ========================================
 // DELETE
 // ========================================
-
-Group.deleteByMail = async id => {
-	let a = await Group.findOneAndDelete({ mail: mail })
-	// check(a, 404, "Not Found")
-	return a
-}
 
 Group.deleteAll = () => {
 	return Group.deleteMany({})
