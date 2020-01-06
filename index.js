@@ -36,7 +36,8 @@ app.use(fileUpload({
 const MongoStore = require('connect-mongo')(session);
 const store = new MongoStore({
 	url: config.database,
-	secret: config.storeSecret
+	secret: config.storeSecret,
+	autoRemove: 'native'
 })
 
 app.use(session({
@@ -51,6 +52,7 @@ const loginCheck = require('./config/passport').loginCheck
 
 app.get('/logout', function (req, res) {
 	req.logout()
+	req.session.destroy()
 	res.redirect(req.query.next || config.frontUrl)
 })
 

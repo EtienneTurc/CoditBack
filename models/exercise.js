@@ -32,7 +32,9 @@ const ExerciseSchema = new mongoose.Schema({
 		type: String,
 	},
 	difficulty: {
-		type: Number
+		type: Number,
+		min: 1,
+		max: 5
 	},
 	language: {
 		type: String,
@@ -67,7 +69,7 @@ Exercise.getAll = () => {
 }
 
 Exercise.getById = id => {
-	return Exercise.findOne({ _id: id })
+	return Exercise.findOne({ _id: id }).lean()
 }
 
 Exercise.getByUploader = uploaderMail => {

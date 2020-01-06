@@ -2,6 +2,7 @@
 	"port": 8443,
 	"url": "https://localhost:8443",
 	"frontUrl": "http://localhost:8080",
+	"mediaUrl": "/home/etienne/submission-platform/media",
 	"ssl_key": "config/ssl.key",
 	"ssl_crt": "config/ssl.crt",
 	"sessionSecret": "changeMe",
