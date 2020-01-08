@@ -6,8 +6,8 @@ exports.check = (el, status, message) => {
 }
 
 function isSubmissionSuccessful(result) {
-	let arr = result.user_stdout.split("\n")
-	if (!result.user_stderr && arr[arr.length - 2] == "OK")
+	let arr = result.user_stderr.split("\n")
+	if (arr[arr.length - 2] == "OK")
 		return true
 	return false
 }

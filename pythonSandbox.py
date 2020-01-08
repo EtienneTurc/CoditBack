@@ -6,6 +6,7 @@ import json
 import bdb
 import resource
 import unittest
+import testResultFormatted
 
 
 DEBUG = True
@@ -78,7 +79,8 @@ class SandboxExecutor(bdb.Bdb):
             #
             # Of course, this isn't a foolproof solution by any means,
             # and it might lead to unexpected failures later in execution.
-            unittestRunner = unittest.TextTestRunner(sys.stdout, verbosity=2)
+            unittestRunner = unittest.TextTestRunner(
+                resultclass=testResultFormatted.TestResultFormatted, verbosity=1, buffer=True)
             del sys.modules['os']
             del sys.modules['os.path']
             del sys.modules['sys']
