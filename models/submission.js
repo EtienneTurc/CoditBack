@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+mongoose.set('useFindAndModify', false);
 
 const SubmissionSchema = new mongoose.Schema({
 	exercise: {
@@ -17,6 +18,9 @@ const SubmissionSchema = new mongoose.Schema({
 		type: Boolean,
 		default: false
 	},
+	successTime: {
+		type: Date
+	}
 }, {
 	timestamps: true,
 	versionKey: false,
@@ -72,7 +76,6 @@ Submission.update = async (id, submission) => {
 
 Submission.deleteById = async id => {
 	let a = await Submission.findOneAndDelete({ _id: id })
-	// check(a, 404, "Not Found")
 	return a
 }
 

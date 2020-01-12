@@ -3,7 +3,11 @@ const mongoose = require('mongoose')
 const GroupSchema = new mongoose.Schema({
 	title: {
 		type: String,
-		required: true
+		required: true,
+		unique: true
+	},
+	description: {
+		type: String,
 	},
 	startTime: Date,
 	endTime: Date,
@@ -46,7 +50,6 @@ Group.add = async group => {
 
 Group.update = async (id, group) => {
 	let a = await Group.findOneAndUpdate({ _id: id }, { $set: group }, { new: true })
-	// check(a, 404, "Not Found")
 	return a
 }
 

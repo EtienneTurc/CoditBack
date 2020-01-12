@@ -4,6 +4,7 @@ const config = require("../config/config.json")
 
 const { check, executeFile } = require("../utils/utils")
 const Exercise = require("../models/exercise")
+const Group = require("../models/group")
 const Submission = require("../models/submission")
 
 // ========================================
@@ -13,6 +14,22 @@ const Submission = require("../models/submission")
 exports.getUserInfo = async (req, res) => {
 	delete req.user._id
 	res.send(req.user)
+}
+
+exports.getGroup = async (req, res) => {
+	check(req.query.id, 400, "Id exercise empty")
+
+	let group = await Group.getById(req.query.id)
+	check(group, 404, "Group not found")
+
+	res.send(group)
+}
+
+exports.getGroups = async (req, res) => {
+	let groups = await Group.getAll()
+	check(groups, 404, "Groups not found")
+
+	res.send(groups)
 }
 
 exports.getExercise = async (req, res) => {
@@ -27,7 +44,6 @@ exports.getExercise = async (req, res) => {
 		if (submission && submission.success)
 			exo.success = true
 	}
-
 	res.send(exo)
 }
 
@@ -67,11 +83,13 @@ exports.updateSubmission = async (req, res) => {
 			exercise: exo._id,
 			user: req.user.mail,
 			path: config.documentStore + "/" + exo._id + "/" + req.user.mail + ".py",
-			success: result.success
+			success: result.success,
+			successTime: result.success ? new Date() : null
 		}
 		await moveFile(req.files.submission.tempFilePath, submission.path)
 		await Submission.add(submission)
 	} else if (result.success || !previousSubmission.success) {
+		previousSubmission.successTime = previousSubmission.success ? previousSubmission.successTime : result.success ? new Date() : null
 		previousSubmission.success = result.success
 		await moveFile(req.files.submission.tempFilePath, previousSubmission.path)
 		await Submission.update(exo._id, previousSubmission)
@@ -102,11 +120,22 @@ exports.updateExercise = async (req, res) => {
 	res.send(exercise)
 }
 
+exports.updateGroup = async (req, res) => {
+	check(req.body.group._id, 400, "No id given")
+	check(req.body.group, 400, "No group given")
+	check(req.body.group.title, 400, "No Title specified")
+
+	group = await Group.update(req.body.group._id, req.body.group)
+	check(group, 404, "Could not update the group")
+
+	res.send(group)
+}
+
 // ========================================
 // POST
 // ========================================
 
-exports.postExercise = async (req, res) => {
+exports.addExercise = async (req, res) => {
 	let exercise = JSON.parse(req.body.exercise)
 	check(exercise, 400, "No exercise given")
 	check(exercise.language, 400, "No language specified")
@@ -130,4 +159,14 @@ exports.postExercise = async (req, res) => {
 	check(exercise, 404, "Could not create a new exercise")
 
 	res.send(exercise)
+}
+
+exports.addGroup = async (req, res) => {
+	check(req.body.group, 400, "No group given")
+	check(req.body.group.title, 400, "No Title specified")
+
+	group = await Group.add(req.body.group)
+	check(group, 404, "Could not create a new group")
+
+	res.send(group)
 }
