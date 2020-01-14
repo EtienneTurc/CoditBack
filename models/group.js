@@ -6,6 +6,10 @@ const GroupSchema = new mongoose.Schema({
 		required: true,
 		unique: true
 	},
+	exercises: [{
+		type: mongoose.Schema.ObjectId,
+		ref: "Exercise",
+	}],
 	description: {
 		type: String,
 	},
@@ -26,12 +30,15 @@ const Group = mongoose.model("Group", GroupSchema)
 // GET
 // ========================================
 
-Group.getAll = () => {
-	return Group.find()
+Group.getAll = (populate = false) => {
+	let a = Group.find()
+	return populate ? a.populate('exercises').lean() : a.lean()
 }
 
-Group.getById = id => {
-	return Group.find({ _id: id })
+
+Group.getById = (id, populate = false) => {
+	let a = Group.find({ _id: id })
+	return populate ? a.populate('exercises') : a
 }
 
 
@@ -50,6 +57,11 @@ Group.add = async group => {
 
 Group.update = async (id, group) => {
 	let a = await Group.findOneAndUpdate({ _id: id }, { $set: group }, { new: true })
+	return a
+}
+
+Group.addExercise = async (id, exercise_id) => {
+	let a = await Group.findOneAndUpdate({ _id: id, 'exercises': { $ne: exercise_id } }, { $push: { 'exercises': exercise_id } }, { new: true })
 	return a
 }
 

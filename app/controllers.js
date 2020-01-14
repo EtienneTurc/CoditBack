@@ -19,15 +19,27 @@ exports.getUserInfo = async (req, res) => {
 exports.getGroup = async (req, res) => {
 	check(req.query.id, 400, "Id exercise empty")
 
-	let group = await Group.getById(req.query.id)
+	let group = await Group.getById(req.query.id, req.query.populate)
 	check(group, 404, "Group not found")
 
 	res.send(group)
 }
 
+// TODO setup pagination
+// TODO improve success get
 exports.getGroups = async (req, res) => {
-	let groups = await Group.getAll()
+	let groups = await Group.getAll(req.query.populate)
 	check(groups, 404, "Groups not found")
+
+	if (req.query.withSuccess) {
+		for (let group of groups) {
+			for (let exercise of group.exercises) {
+				exercise.success = false
+				let sub = await Submission.getByExerciseAndUser(exercise._id, req.user.mail)
+				exercise.success = sub ? sub.success : false
+			}
+		}
+	}
 
 	res.send(groups)
 }
@@ -145,7 +157,7 @@ exports.addExercise = async (req, res) => {
 
 	exercise._id = mongoose.Types.ObjectId();
 
-	exercise.banner = config.mediaUrl + `/default_banner_${parseInt(Math.random() * 11) + 1}.jpg`
+	exercise.banner = `/default_banner_${parseInt(Math.random() * 11) + 1}.jpg`
 	exercise.testPath = config.documentStore + "/" + exercise._id + "/test.py"
 	// Saving test file
 	await moveFile(req.files.testFile.tempFilePath, exercise.testPath)
@@ -155,10 +167,16 @@ exports.addExercise = async (req, res) => {
 		await moveFile(req.files.banner.tempFilePath, config.mediaUrl + exercise.banner)
 	}
 
-	exercise = await Exercise.add(exercise)
-	check(exercise, 404, "Could not create a new exercise")
+	let new_exercise = await Exercise.add(exercise)
+	check(new_exercise, 404, "Could not create a new exercise")
 
-	res.send(exercise)
+	promises = []
+	for (let group_id of exercise.groups) {
+		promises.push(Group.addExercise(group_id, new_exercise._id))
+	}
+	await Promise.all(promises)
+
+	res.send(new_exercise)
 }
 
 exports.addGroup = async (req, res) => {

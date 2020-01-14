@@ -5,10 +5,6 @@ const ExerciseSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	groups: {
-		type: [mongoose.Schema.ObjectId],
-		ref: "Group",
-	},
 	markdown: {
 		type: String,
 		required: true,
