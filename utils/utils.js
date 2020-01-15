@@ -12,6 +12,13 @@ function isSubmissionSuccessful(result) {
 	return false
 }
 
+function clearTraceback(result) {
+	if (result.user_stderr.includes("Traceback (most recent call last):\n")) {
+		result.user_stderr = result.user_stderr.split("\n").slice(3).join("\n")
+	}
+	return result
+}
+
 exports.executeFile = (exercise, studentFilePath) => {
 	return new Promise((resolve, reject) => {
 		let cmd = `/home/etienne/safeexec/safeexec --gid ${config.sandboxGid} --nproc 4 --mem ${config.sandboxMemSize} --exec ${config.pythonPath} pythonSandbox.py ${exercise.testPath} ${studentFilePath} ${exercise.cpuTime} ${exercise.memorySize}`
@@ -20,6 +27,7 @@ exports.executeFile = (exercise, studentFilePath) => {
 				reject(err);
 			}
 			let result = JSON.parse(stdout)
+			result = clearTraceback(result)
 			result.success = isSubmissionSuccessful(result)
 			resolve(result)
 		});

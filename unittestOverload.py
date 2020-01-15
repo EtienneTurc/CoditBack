@@ -1,12 +1,26 @@
 import sys
 import unittest
+import traceback
+
+
+class TextTestRunnerCustom(unittest.TextTestRunner):
+    def __init__(self, stream=None, descriptions=True, verbosity=1,
+                 failfast=False, buffer=False, resultclass=None, warnings=None, code="", *, tb_locals=False):
+        super(TextTestRunnerCustom, self).__init__(
+            stream, descriptions, verbosity,
+            failfast, buffer, resultclass, warnings, tb_locals=tb_locals)
+        self.code = code
+
+    def _makeResult(self):
+        return self.resultclass(self.stream, self.descriptions, self.verbosity, self.code)
 
 
 class TestResultFormatted(unittest.TextTestResult):
-    def __init__(self, stream, descriptions, verbosity):
+    def __init__(self, stream, descriptions, verbosity, code=""):
         super(TestResultFormatted, self).__init__(
             stream, descriptions, verbosity)
         self.result = []
+        self.code = code
 
     def addSuccess(self, test):
         self.result.append((test, "<SUCCESS>", self.formatString("")))
@@ -14,6 +28,16 @@ class TestResultFormatted(unittest.TextTestResult):
     def addFailure(self, test, err):
         self.failures.append((test, err))
         self.result.append((test, "<FAILURE>", self.formatString(err[1])))
+
+    def addError(self, test, err):
+        tracebackMsg = traceback.format_tb(err[2], -1)[0]
+        tracebackMsgLine = int(tracebackMsg.split(
+            "\", line ")[1].split(",")[0])
+        line = self.code.split("\n")[tracebackMsgLine-1]
+
+        self.errors.append((test, err))
+        self.result.append(
+            (test, "<ERROR>", self.formatString(str(err[1]) + '\n' + tracebackMsg + "\n" + line)))
 
     def formatString(self, err):
         msg = str(err)
