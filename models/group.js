@@ -37,8 +37,8 @@ Group.getAll = (populate = false) => {
 
 
 Group.getById = (id, populate = false) => {
-	let a = Group.find({ _id: id })
-	return populate ? a.populate('exercises') : a
+	let a = Group.findOne({ _id: id })
+	return populate ? a.populate('exercises').lean() : a.lean()
 }
 
 

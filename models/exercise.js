@@ -60,7 +60,7 @@ const Exercise = mongoose.model("Exercise", ExerciseSchema)
 // ========================================
 
 Exercise.getAll = () => {
-	return Exercise.find()
+	return Exercise.find().lean()
 }
 
 Exercise.getById = id => {

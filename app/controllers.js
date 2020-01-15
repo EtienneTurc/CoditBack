@@ -40,7 +40,6 @@ exports.getGroups = async (req, res) => {
 			}
 		}
 	}
-
 	res.send(groups)
 }
 
@@ -60,15 +59,27 @@ exports.getExercise = async (req, res) => {
 }
 
 exports.getExercises = async (req, res) => {
-	let exercises = await Exercise.getAll(req.query.id)
-	check(exercises, 404, "No exercises yet")
+	let exercises
+	let exos = { todo: [], done: [] }
+
+	if (req.query.group_id) {
+		let group = await Group.getById(req.query.group_id, populate = true)
+		exercises = group.exercises
+		delete group.exercises
+		exos.group = group
+	} else {
+		exercises = await Exercise.getAll()
+	}
+
+	check(exercises, 404, "No exercises found")
 
 	// TODO Improve that for loop
-	exos = { todo: [], done: [] }
 	for (let exo of exercises) {
 		let submission = await Submission.getByExerciseAndUser(exo._id, req.user.mail)
-		if (submission && submission.success)
+		if (submission && submission.success) {
+			exo.success = true
 			exos.done.push(exo)
+		}
 		else
 			exos.todo.push(exo)
 	}
