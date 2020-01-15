@@ -66,7 +66,7 @@ Submission.add = async submission => {
 // ========================================
 
 Submission.update = async (id, submission) => {
-	let a = await Submission.findOneAndUpdate({ exercise: id }, { $set: submission }, { new: true })
+	let a = await Submission.findOneAndUpdate({ _id: id }, { $set: submission }, { new: true })
 	return a
 }
 

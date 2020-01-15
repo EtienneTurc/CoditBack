@@ -30,12 +30,17 @@ class TestResultFormatted(unittest.TextTestResult):
         self.result.append((test, "<FAILURE>", self.formatString(err[1])))
 
     def addError(self, test, err):
+        self.errors.append((test, err))
+        if (str(err[1]) == ""):
+            self.result.append(
+                (test, "<ERROR>", self.formatString("Memory Error")))
+            return False
+
         tracebackMsg = traceback.format_tb(err[2], -1)[0]
         tracebackMsgLine = int(tracebackMsg.split(
             "\", line ")[1].split(",")[0])
-        line = self.code.split("\n")[tracebackMsgLine-1]
+        line = self.code.split("\n")[tracebackMsgLine - 1]
 
-        self.errors.append((test, err))
         self.result.append(
             (test, "<ERROR>", self.formatString(str(err[1]) + '\n' + tracebackMsg + "\n" + line)))
 

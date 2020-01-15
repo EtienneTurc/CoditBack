@@ -49,14 +49,15 @@ class SandboxExecutor(bdb.Bdb):
         sys.stderr = self.user_stderr
 
         try:
+            unittestRunner = unittestOverload.TextTestRunnerCustom(
+                resultclass=unittestOverload.TestResultFormatted, verbosity=1, buffer=True, code=student_str)
             # enforce resource limits RIGHT BEFORE running script_str
 
             # set ~200MB virtual memory limit AND a 5-second CPU time
             # limit  to protect against memory bombs such as:
             #   x = 2
             #   while True: x = x*x
-            resource.setrlimit(resource.RLIMIT_AS,
-                               (self.memorySize, self.memorySize))
+
             resource.setrlimit(resource.RLIMIT_CPU,
                                (self.cpuTime, self.cpuTime))
             resource.setrlimit(resource.RLIMIT_NPROC,
@@ -79,12 +80,14 @@ class SandboxExecutor(bdb.Bdb):
             #
             # Of course, this isn't a foolproof solution by any means,
             # and it might lead to unexpected failures later in execution.
-            unittestRunner = unittestOverload.TextTestRunnerCustom(
-                resultclass=unittestOverload.TestResultFormatted, verbosity=1, buffer=True, code=student_str)
             del sys.modules['os']
             del sys.modules['os.path']
             del sys.modules['sys']
 
+            current_usage = resource.getrusage(
+                resource.RUSAGE_SELF).ru_maxrss * 1024
+            resource.setrlimit(resource.RLIMIT_AS,
+                               (current_usage + self.memorySize, current_usage + self.memorySize))
             # ... here we go!
             globals_env = {'unittestRun': unittestRunner.run}
             self.run(student_str, globals_env)

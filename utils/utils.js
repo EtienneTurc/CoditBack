@@ -21,12 +21,18 @@ function clearTraceback(result) {
 
 exports.executeFile = (exercise, studentFilePath) => {
 	return new Promise((resolve, reject) => {
-		let cmd = `/home/etienne/safeexec/safeexec --gid ${config.sandboxGid} --nproc 4 --mem ${config.sandboxMemSize} --exec ${config.pythonPath} pythonSandbox.py ${exercise.testPath} ${studentFilePath} ${exercise.cpuTime} ${exercise.memorySize}`
+		let cmd = `${config.safeexecPath} --gid ${config.sandboxGid} --nproc 4 --mem ${config.sandboxMemSize} --exec ${config.pythonPath} pythonSandbox.py ${exercise.testPath} ${studentFilePath} ${exercise.cpuTime} ${exercise.memorySize}`
 		exec(cmd, (err, stdout, stderr) => {
-			if (err) {
+			if (err && !stderr) {
 				reject(err);
 			}
-			let result = JSON.parse(stdout)
+			let result = {}
+			if (!!stdout) {
+				result = JSON.parse(stdout)
+			} else {
+				result.user_stderr = stderr
+			}
+
 			result = clearTraceback(result)
 			result.success = isSubmissionSuccessful(result)
 			resolve(result)

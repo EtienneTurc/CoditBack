@@ -115,7 +115,7 @@ exports.updateSubmission = async (req, res) => {
 		previousSubmission.successTime = previousSubmission.success ? previousSubmission.successTime : result.success ? new Date() : null
 		previousSubmission.success = result.success
 		await moveFile(req.files.submission.tempFilePath, previousSubmission.path)
-		await Submission.update(exo._id, previousSubmission)
+		await Submission.update(previousSubmission._id, previousSubmission)
 	}
 	res.send(result)
 }
