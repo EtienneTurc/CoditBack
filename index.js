@@ -30,7 +30,6 @@ app.use(cors({ credentials: true, origin: true }))
 app.use(fileUpload({
 	useTempFiles: true,
 	tempFileDir: '/tmp/',
-	debug: true
 }));
 
 const MongoStore = require('connect-mongo')(session);
