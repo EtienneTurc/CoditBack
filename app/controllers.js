@@ -167,6 +167,7 @@ exports.addExercise = async (req, res) => {
 	check(req.files.testFile, 400, "No file given")
 
 	exercise._id = mongoose.Types.ObjectId();
+	exercise.uploaderMail = req.user.mail
 
 	exercise.banner = `/default_banner_${parseInt(Math.random() * 11) + 1}.jpg`
 	exercise.testPath = config.documentStore + "/" + exercise._id + "/test.py"
