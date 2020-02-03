@@ -127,7 +127,7 @@ if __name__ == "__main__":
     test_script = open(sys.argv[1]).read()
     student_str = open(sys.argv[2]).read()
     cpuTime = int(sys.argv[3])
-    memorySize = int(sys.argv[4])
+    # memorySize = int(sys.argv[4])
 
     print(exec_str(test_script, student_str, json_finalizer,
                    cpuTime, memorySize))
