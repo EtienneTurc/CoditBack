@@ -124,8 +124,8 @@ def json_finalizer(executor):
 
 
 if __name__ == "__main__":
-    test_script = open(sys.argv[1]).read()
-    student_str = open(sys.argv[2]).read()
+    test_script = open(sys.argv[1], 'r', encoding="utf-8").read()
+    student_str = open(sys.argv[2], 'r', encoding="utf-8").read()
     cpuTime = int(sys.argv[3])
     # memorySize = int(sys.argv[4])
 
