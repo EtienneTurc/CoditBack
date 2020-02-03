@@ -84,10 +84,10 @@ class SandboxExecutor(bdb.Bdb):
             del sys.modules['os.path']
             del sys.modules['sys']
 
-            current_usage = resource.getrusage(
-                resource.RUSAGE_SELF).ru_maxrss * 1024
-            resource.setrlimit(resource.RLIMIT_AS,
-                               (current_usage + self.memorySize, current_usage + self.memorySize))
+            # current_usage = resource.getrusage(
+            #     resource.RUSAGE_SELF).ru_maxrss * 1024
+            # resource.setrlimit(resource.RLIMIT_AS,
+            #                    (current_usage + self.memorySize, current_usage + self.memorySize))
             # ... here we go!
             globals_env = {'unittestRun': unittestRunner.run}
             self.run(student_str, globals_env)
