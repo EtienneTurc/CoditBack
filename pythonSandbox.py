@@ -30,13 +30,12 @@ for m in config["allowedModules"]:
 
 
 class SandboxExecutor(bdb.Bdb):
-    def __init__(self, finalizer_func, cpuTime, memorySize):
+    def __init__(self, finalizer_func, cpuTime):
         bdb.Bdb.__init__(self)
         self.ORIGINAL_STDOUT = sys.stdout
         self.ORIGINAL_STDERR = sys.stderr
         self.finalizer_func = finalizer_func
         self.cpuTime = cpuTime
-        self.memorySize = memorySize
         self.executed_script = None
 
     def _runscript(self, script_str, sutdent_str):
@@ -107,8 +106,8 @@ class SandboxExecutor(bdb.Bdb):
 
 
 # the MAIN meaty function
-def exec_str(script_str, student_str, finalizer, cpuTime, memorySize):
-    logger = SandboxExecutor(finalizer, cpuTime, memorySize)
+def exec_str(script_str, student_str, finalizer, cpuTime):
+    logger = SandboxExecutor(finalizer, cpuTime)
 
     try:
         logger._runscript(script_str, student_str)
@@ -130,4 +129,4 @@ if __name__ == "__main__":
     # memorySize = int(sys.argv[4])
 
     print(exec_str(test_script, student_str, json_finalizer,
-                   cpuTime, memorySize))
+                   cpuTime))
