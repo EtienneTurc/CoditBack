@@ -7,7 +7,7 @@ import bdb
 import resource
 import unittest
 import unittestOverload
-
+from levenshteinDistance import getClosest
 
 DEBUG = True
 
@@ -30,16 +30,17 @@ for m in config["allowedModules"]:
 
 
 class SandboxExecutor(bdb.Bdb):
-    def __init__(self, finalizer_func, cpuTime):
+    def __init__(self, finalizer_func, functionName, cpuTime):
         bdb.Bdb.__init__(self)
         self.ORIGINAL_STDOUT = sys.stdout
         self.ORIGINAL_STDERR = sys.stderr
         self.finalizer_func = finalizer_func
+        self.functionName = functionName
         self.cpuTime = cpuTime
         self.executed_script = None
 
-    def _runscript(self, script_str, sutdent_str):
-        self.executed_script = script_str
+    def _runscript(self, scriptStr, sutdent_str):
+        self.executed_script = scriptStr
 
         self.user_stdout = cStringIO.StringIO()
         self.user_stderr = cStringIO.StringIO()
@@ -49,8 +50,8 @@ class SandboxExecutor(bdb.Bdb):
 
         try:
             unittestRunner = unittestOverload.TextTestRunnerCustom(
-                resultclass=unittestOverload.TestResultFormatted, verbosity=1, buffer=True, code=student_str)
-            # enforce resource limits RIGHT BEFORE running script_str
+                resultclass=unittestOverload.TestResultFormatted, verbosity=1, buffer=True, code=studentStr)
+            # enforce resource limits RIGHT BEFORE running scriptStr
 
             # set ~200MB virtual memory limit AND a 5-second CPU time
             # limit  to protect against memory bombs such as:
@@ -88,13 +89,27 @@ class SandboxExecutor(bdb.Bdb):
             # resource.setrlimit(resource.RLIMIT_AS,
             #                    (current_usage + self.memorySize, current_usage + self.memorySize))
             # ... here we go!
-            globals_env = {'unittestRun': unittestRunner.run}
-            self.run(student_str, globals_env)
-            self.run(script_str, globals_env)
-        # sys.exit ...
+            globals_env = {}
+            self.run(studentStr, globals_env)
+            if self.functionName not in globals_env:
+                function, distance = getClosest(
+                    list(globals_env.keys()), self.functionName)
+                if distance <= 3:
+                    sys.stderr.write("<WARNING>: Could not find function '" + self.functionName + "', using the function '" + function +
+                                     "' instead\n")
+                    globals_env[self.functionName] = globals_env.pop(function)
+                else:
+                    sys.stderr.write(
+                        "NameError: Could not find function '" + self.functionName + "'\n")
+                    sys.stderr.write("The closest function found is: '" + function
+                                     + "'\n")
+                    return
+            globals_env['unittestRun'] = unittestRunner.run
+            self.run(scriptStr, globals_env)
         except SystemExit:
             raise bdb.BdbQuit
         except:
+            print("Unexpected error:", sys.exc_info()[0])
             if DEBUG:
                 traceback.print_exc()
             raise bdb.BdbQuit  # need to forceably STOP execution
@@ -106,11 +121,11 @@ class SandboxExecutor(bdb.Bdb):
 
 
 # the MAIN meaty function
-def exec_str(script_str, student_str, finalizer, cpuTime):
-    logger = SandboxExecutor(finalizer, cpuTime)
+def exec_str(scriptStr, studentStr, finalizer, functionName,  cpuTime):
+    logger = SandboxExecutor(finalizer, functionName, cpuTime)
 
     try:
-        logger._runscript(script_str, student_str)
+        logger._runscript(scriptStr, studentStr)
     except bdb.BdbQuit:
         pass
     finally:
@@ -123,10 +138,10 @@ def json_finalizer(executor):
 
 
 if __name__ == "__main__":
-    test_script = open(sys.argv[1], 'r', encoding="utf-8").read()
-    student_str = open(sys.argv[2], 'r', encoding="utf-8").read()
-    cpuTime = int(sys.argv[3])
-    # memorySize = int(sys.argv[4])
+    testScript = open(sys.argv[1], 'r', encoding="utf-8").read()
+    studentStr = open(sys.argv[2], 'r', encoding="utf-8").read()
+    functionName = sys.argv[3]
+    cpuTime = int(sys.argv[4])
 
-    print(exec_str(test_script, student_str, json_finalizer,
+    print(exec_str(testScript, studentStr, json_finalizer, functionName,
                    cpuTime))

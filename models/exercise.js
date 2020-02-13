@@ -15,6 +15,10 @@ const ExerciseSchema = new mongoose.Schema({
 		required: true,
 		unique: true
 	},
+	functionName: {
+		type: String,
+		required: true
+	},
 	title: {
 		type: String,
 		required: true

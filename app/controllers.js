@@ -99,6 +99,7 @@ exports.updateSubmission = async (req, res) => {
 	check(exo, 404, "No exercise found")
 
 	let result = await executeFile(exo, req.files.submission.tempFilePath)
+	console.log(result)
 	let previousSubmission = await Submission.getByExerciseAndUser(exo._id, req.user.mail)
 
 	if (!previousSubmission) {
@@ -125,6 +126,7 @@ exports.updateExercise = async (req, res) => {
 	check(exercise, 400, "No exercise given")
 	check(exercise.language, 400, "No language specified")
 	check(exercise.markdown, 400, "No subject given")
+	check(exercise.functionName, 400, "No function name given")
 	check(exercise._id, 400, "No id given")
 
 	exercise.testPath = config.documentStore + "/" + exercise._id + "/test.py"
@@ -163,6 +165,7 @@ exports.addExercise = async (req, res) => {
 	check(exercise, 400, "No exercise given")
 	check(exercise.language, 400, "No language specified")
 	check(exercise.markdown, 400, "No subject given")
+	check(exercise.functionName, 400, "No function name given")
 	check(req.files, 400, "No file given")
 	check(req.files.testFile, 400, "No file given")
 

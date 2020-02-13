@@ -14,6 +14,7 @@
 	},
 	"documentStore": "/path/to/data",
 	"database": "mongodb://localhost/submission-platform",
+	"sandboxPath": "utils/pythonSandbox.py",
 	"sandboxGid": 2000,
 	"sandboxCPUTime": 3,
 	"sandboxMemSize": 15000,

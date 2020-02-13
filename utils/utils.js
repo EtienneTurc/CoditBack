@@ -21,7 +21,7 @@ function clearTraceback(result) {
 
 exports.executeFile = (exercise, studentFilePath) => {
 	return new Promise((resolve, reject) => {
-		let cmd = `${config.safeexecPath} --gid ${config.sandboxGid} --nproc 4 --mem ${config.sandboxMemSize} --exec ${config.pythonPath} pythonSandbox.py ${exercise.testPath} ${studentFilePath} ${exercise.cpuTime}`
+		let cmd = `${config.safeexecPath} --gid ${config.sandboxGid} --nproc 4 --mem ${config.sandboxMemSize} --exec ${config.pythonPath} ${config.sandboxPath} ${exercise.testPath} ${studentFilePath} ${exercise.functionName} ${exercise.cpuTime}`
 		exec(cmd, (err, stdout, stderr) => {
 			if (err && !stderr) {
 				reject(err);
