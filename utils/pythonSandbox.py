@@ -29,6 +29,12 @@ for m in config["allowedModules"]:
 # circumvent those anyways
 
 
+def printAuthorizeModule(channel):
+    channel.write("Les modules autorisés sont:\n")
+    for m in config["allowedModules"]:
+        channel.write("\t- " + m + "\n")
+
+
 class SandboxExecutor(bdb.Bdb):
     def __init__(self, finalizer_func, functionName, cpuTime):
         bdb.Bdb.__init__(self)
@@ -107,6 +113,16 @@ class SandboxExecutor(bdb.Bdb):
             globals_env['unittestRun'] = unittestRunner.run
             self.run(scriptStr, globals_env)
         except SystemExit:
+            raise bdb.BdbQuit
+        except OSError as error:
+            # print("Hello\nUnexpected error:", sys.exc_info()[0])
+            line = traceback.format_tb(sys.exc_info()[2])[
+                2].split(",")[1].split(" ")[-1]
+            import_module = studentStr.split(
+                "\n")[int(line) - 1].split(" ")[1:]
+            sys.stderr.write("Le module '" + " ".join(import_module) +
+                             "' ne fait pas partie des modules autorisés.\n")
+            printAuthorizeModule(sys.stderr)
             raise bdb.BdbQuit
         except:
             print("Unexpected error:", sys.exc_info()[0])
